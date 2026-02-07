@@ -1,0 +1,29 @@
+services:
+  trainer:
+    build: .
+    image: casa-dialogue-act-classifier:latest
+    container_name: casa-dac-trainer
+    platform: linux/amd64
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CUDA_VISIBLE_DEVICES=""
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./wandb:/app/wandb
+      - ./config.py:/app/config.py
+    shm_size: '2gb'
+    stdin_open: true
+    tty: true
+    command: python main.py
+
+  tensorboard:
+    image: casa-dialogue-act-classifier:latest
+    container_name: casa-dac-tensorboard
+    platform: linux/amd64
+    volumes:
+      - ./checkpoints:/app/checkpoints
+      - ./wandb:/app/wandb
+    ports:
+      - "6006:6006"
+    command: tensorboard --logdir=/app/checkpoints --host=0.0.0.0
